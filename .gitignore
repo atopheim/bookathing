@@ -102,3 +102,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Firebase service account
+serviceAccountKey.json
+
+# Static builds
+*/build
