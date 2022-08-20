@@ -41,7 +41,7 @@ This web application uses the following technology
 
 ## Getting Started
 
-1. To preview this application online click here [link](https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley)
+1. To preview this application online click here [link](http://bookathing.vercel.app/)
 
 2. To run this application locally 2. Clone the repo
 
