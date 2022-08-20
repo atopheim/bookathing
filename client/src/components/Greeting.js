@@ -5,10 +5,10 @@ const Greeting = (props) => {
     <div>
       <Jumbotron fluid>
         <Container fluid>
-          <h1 className="display-3">Welcome</h1>
+          <h1 className="display-3">O'leans washing club</h1>
           <p className="lead">
-            To the simplest booking system. <br /> Press the "Book now" in
-            the header to book a thing!
+            Welcome to the simplest booking system. <br /> Press the "Book now" in
+            the header to book your time slot!
           </p>
         </Container>
       </Jumbotron>

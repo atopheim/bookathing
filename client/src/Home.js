@@ -8,7 +8,6 @@ function Home() {
     <div className="App">
       <Greeting />
       <Information />
-      <Footer />
     </div>
   );
 }

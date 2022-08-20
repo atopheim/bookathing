@@ -7,19 +7,10 @@ const Information = () => {
     <div>
       <Container fluid>
         <div className="row m-3 d-flex align-items-center">
-          <div className="col-12 col-md-6 p-5">
-            <img src={doc1} alt="" width="100%" height="auto" />
-          </div>
-          <div className="col-12 col-md-6 text-center p-5">
-            <h3 className="display-4">Book a dentist</h3>
-            <p>
-             Get rid of that tooth ache, ASAP!
-            </p>
-          </div>
         </div>
         <div className="row m-3 d-flex align-items-center">
           <div className="col-12 col-md-6 text-center p-5">
-            <h3 className="display-4">Book a washing machine</h3>
+            <h3 className="display-4">Book a washing time slot</h3>
             <p>
               #laundryday
             </p>
