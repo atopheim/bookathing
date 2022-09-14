@@ -15,7 +15,7 @@ const admin = require("firebase-admin");
 // }
 
 module.exports = admin.initializeApp({
-  credential: JSON.parse(process.env.FIREBASE_ACCOUNT_KEY),
+  credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_ACCOUNT_KEY)),
 });
 
 const db = admin.firestore();
