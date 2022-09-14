@@ -84,4 +84,3 @@ You need to have the following Prerequisite to get started
 | /createEvent | DateTime, Duration | All the data passed will create the event and store that into the firestore document, if the event already exists for that time you need to return status code 422 or else just store it and return with status 200. |
 | /getEvents   | startDate, endDate | Return all the events between given StartDate & EndDate                                                                                                            |
 
-
