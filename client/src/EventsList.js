@@ -4,7 +4,7 @@ import Calendar from "react-calendar";
 import axios from "axios";
 import { Table } from "reactstrap";
 import moment from "moment-timezone";
-moment.tz.setDefault("America/New_York");
+moment.tz.setDefault("Europe/Oslo");
 
 export default class CreateEvent extends Component {
   constructor(props) {

@@ -5,7 +5,7 @@ import { Button } from "reactstrap";
 import axios from "axios";
 import moment from "moment-timezone";
 import timezones from "../timezones";
-moment.tz.setDefault("America/New_York");
+moment.tz.setDefault("Europe/Oslo");
 
 export default class CreateEvent extends Component {
   constructor(props) {
