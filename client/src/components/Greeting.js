@@ -7,7 +7,7 @@ const Greeting = (props) => {
         <Container fluid>
           <h1 className="display-3">O'leans washing club</h1>
           <p className="lead">
-            Welcome to the simplest booking system. <br /> Press the "Book now" in
+            Press the "Book now" in
             the header to book your time slot!
           </p>
         </Container>
