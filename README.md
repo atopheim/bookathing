@@ -53,7 +53,7 @@ This web application uses the following technology
    yarn && yarn start
    ```
 4. Create a firebase firestore database with collection name `event`
-5. Add your firebase service account API key in `server/serviceAccountKey.json`
+5. Add your firebase service account API key in `server/serviceAccountKey.json` or as FIREBASE_ACCOUNT_KEY environment variable
 
 ### Prerequisites
 
