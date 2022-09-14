@@ -72,7 +72,7 @@ export default class CreateEvent extends Component {
       reqEnd: moment.tz(this.state.endDate, "America/New_York").toDate(),
     };
 
-    axios.post("http://localhost:5000/getEvents/", range).then((res) => {
+    axios.post("http://localhost:5001/getEvents/", range).then((res) => {
       this.getEventsList(res.data);
     });
   }

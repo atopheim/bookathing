@@ -94,7 +94,7 @@ export default class CreateEvent extends Component {
       reqTimezone: this.state.timezone,
     };
 
-    axios.post("http://localhost:5000/freeSlots", events).then((res) => {
+    axios.post("http://localhost:5001/freeSlots", events).then((res) => {
       this.getSlots(res.data);
     });
   }
@@ -126,7 +126,7 @@ export default class CreateEvent extends Component {
     };
 
     axios
-      .post("http://localhost:5000/createEvent", eventParam)
+      .post("http://localhost:5001/createEvent", eventParam)
       .then(() => {
         window.location = `/status/${eventParam.reqDateTime}/${eventParam.reqDuration}`;
       })
