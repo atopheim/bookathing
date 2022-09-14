@@ -31,7 +31,7 @@ export default class CreateEvent extends Component {
   componentDidMount() {
     this.setState({
       date: new Date(),
-      timezone: "America/New_York",
+      timezone: "Europe/Oslo",
       duration: 30,
     });
   }
@@ -102,8 +102,8 @@ export default class CreateEvent extends Component {
   onSlotSelect(e) {
     let refSlots = [];
     this.state.slots.map((slot) => {
-      refSlots.push(moment.tz(slot, "America/New_York"));
-      return moment.tz(slot, "America/New_York");
+      refSlots.push(moment.tz(slot, "Europe/Oslo"));
+      return moment.tz(slot, "Europe/Oslo");
     });
     let index = this.state.buttons.indexOf(e.button);
     const selectedSlot = refSlots[index];
@@ -116,7 +116,7 @@ export default class CreateEvent extends Component {
 
     // let eventDateTime = new Date(yr, month, day, hr, min, 0);
     let eventDateTime = moment
-      .tz([yr, month, day, hr, min], "America/New_York")
+      .tz([yr, month, day, hr, min], "Europe/Oslo")
       .format();
     console.log(eventDateTime);
 
