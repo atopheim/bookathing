@@ -1,24 +1,49 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.css";
-import "./assets/css/App.css";
-import NavBar from "./components/NavBar";
-import Home from "./Home";
-import Status from "./Status";
-import Error from "./Error";
-import EventsList from "./EventsList";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import Layout from './components/Layout';
+import HomePage from './pages/HomePage';
+import BookingPage from './pages/BookingPage';
+import ConfirmationPage from './pages/ConfirmationPage';
+import AdminPage from './pages/AdminPage';
+import EmbedPage from './pages/EmbedPage';
 
-const App = () => {
+function App() {
   return (
     <Router>
-      <NavBar />
-      <Switch>
-        <Route exact path="/" component={Home} />
-        <Route path="/status" component={Status} />
-        <Route path="/listAll" component={EventsList} />
-        <Route path="*" component={Error} />
-      </Switch>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
+      <Routes>
+        <Route path="/embed/:resourceId?" element={<EmbedPage />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<HomePage />} />
+          <Route path="book/:resourceId" element={<BookingPage />} />
+          <Route path="confirmation/:bookingId" element={<ConfirmationPage />} />
+          <Route path="admin" element={<AdminPage />} />
+        </Route>
+      </Routes>
     </Router>
   );
-};
+}
+
 export default App;
