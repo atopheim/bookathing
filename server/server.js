@@ -3,6 +3,9 @@ const cors = require("cors");
 const path = require("path");
 const moment = require("moment-timezone");
 const { v4: uuidv4 } = require("uuid");
+const rateLimit = require("express-rate-limit");
+const validator = require("validator");
+const helmet = require("helmet");
 
 require("dotenv").config();
 
@@ -42,23 +45,73 @@ loadConfig();
 validateConfig();
 watchConfig();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Security middleware
+app.use(helmet()); // Add security headers
+
+// Configure CORS - restrict to specific origins in production
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:3000', 'http://localhost:5000'];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc)
+    if (!origin) return callback(null, true);
+
+    // In development, allow all origins
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+
+    // In production, check against whitelist
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
+app.use(express.json({ limit: '10mb' })); // Limit payload size
 app.use(express.static(path.join(__dirname, "build")));
 
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
+// Rate limiting to prevent DoS
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
+
+// Apply rate limiting to API routes only
+app.use('/api/', limiter);
+
+// Stricter rate limiting for booking creation
+const bookingLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // Limit each IP to 10 booking attempts per hour
+  message: 'Too many booking attempts, please try again later.',
+});
+
+// Simple API key authentication middleware for admin routes
+const authenticateAdmin = (req, res, next) => {
+  const apiKey = req.headers['x-api-key'];
+  const adminKey = process.env.ADMIN_API_KEY;
+
+  if (!adminKey) {
+    // If no admin key is configured, allow access (backward compatibility)
+    console.warn('Warning: ADMIN_API_KEY not configured. Admin endpoints are unprotected!');
+    return next();
+  }
+
+  if (apiKey !== adminKey) {
+    return res.status(401).json({ error: 'Unauthorized - Invalid API key' });
+  }
+
+  next();
+};
 
 // ============================================
 // API ENDPOINTS
@@ -127,8 +180,8 @@ app.get("/api/resources/:id/status", (req, res) => {
   });
 });
 
-// Update resource status (for IoT integration)
-app.put("/api/resources/:id/status", (req, res) => {
+// Update resource status (for IoT integration) - Protected
+app.put("/api/resources/:id/status", authenticateAdmin, (req, res) => {
   const resource = getResource(req.params.id);
   if (!resource) {
     return res.status(404).json({ error: "Resource not found" });
@@ -225,7 +278,7 @@ app.get("/api/resources/:id/slots", (req, res) => {
 });
 
 // Create a booking
-app.post("/api/bookings", (req, res) => {
+app.post("/api/bookings", bookingLimiter, (req, res) => {
   const {
     resourceId,
     startTime,
@@ -241,6 +294,45 @@ app.post("/api/bookings", (req, res) => {
     return res.status(400).json({
       error: "Missing required fields: resourceId, startTime, endTime, userName",
     });
+  }
+
+  // Sanitize and validate inputs
+  const sanitizedUserName = validator.escape(validator.trim(userName));
+  if (sanitizedUserName.length < 2 || sanitizedUserName.length > 100) {
+    return res.status(400).json({ error: "Name must be between 2 and 100 characters" });
+  }
+
+  // Validate email if provided
+  let sanitizedEmail = '';
+  if (userEmail && userEmail.trim()) {
+    if (!validator.isEmail(userEmail)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+    sanitizedEmail = validator.normalizeEmail(userEmail);
+  }
+
+  // Validate phone if provided
+  let sanitizedPhone = '';
+  if (userPhone && userPhone.trim()) {
+    sanitizedPhone = validator.trim(userPhone);
+    // Basic phone validation (allows international formats)
+    if (sanitizedPhone.length > 0 && (sanitizedPhone.length < 7 || sanitizedPhone.length > 20)) {
+      return res.status(400).json({ error: "Invalid phone number format" });
+    }
+  }
+
+  // Sanitize notes
+  let sanitizedNotes = '';
+  if (notes) {
+    sanitizedNotes = validator.escape(validator.trim(notes));
+    if (sanitizedNotes.length > 500) {
+      return res.status(400).json({ error: "Notes must be less than 500 characters" });
+    }
+  }
+
+  // Validate date/time format
+  if (!moment(startTime).isValid() || !moment(endTime).isValid()) {
+    return res.status(400).json({ error: "Invalid date/time format" });
   }
 
   const resource = getResource(resourceId);
@@ -267,7 +359,7 @@ app.post("/api/bookings", (req, res) => {
   const bookingDate = newStart.clone().startOf("day");
   const userBookingsToday = inMemoryBookings.filter((b) => {
     if (b.resourceId !== resourceId || b.status === "cancelled") return false;
-    if (b.userName !== userName) return false;
+    if (b.userName !== sanitizedUserName) return false;
     const bDate = moment(b.startTime).startOf("day");
     return bDate.isSame(bookingDate);
   });
@@ -281,17 +373,17 @@ app.post("/api/bookings", (req, res) => {
     });
   }
 
-  // Create booking
+  // Create booking with sanitized data
   const booking = {
     id: uuidv4(),
     resourceId,
     resourceName: resource.name,
     startTime: newStart.toISOString(),
     endTime: newEnd.toISOString(),
-    userName,
-    userEmail: userEmail || "",
-    userPhone: userPhone || "",
-    notes: notes || "",
+    userName: sanitizedUserName,
+    userEmail: sanitizedEmail,
+    userPhone: sanitizedPhone,
+    notes: sanitizedNotes,
     status: resource.requiresConfirmation ? "pending" : "confirmed",
     createdAt: new Date().toISOString(),
   };
@@ -315,8 +407,8 @@ app.post("/api/bookings", (req, res) => {
   });
 });
 
-// Get all bookings (with optional filters)
-app.get("/api/bookings", (req, res) => {
+// Get all bookings (with optional filters) - Protected (admin only)
+app.get("/api/bookings", authenticateAdmin, (req, res) => {
   const { resourceId, startDate, endDate, status, userName } = req.query;
 
   let filtered = [...inMemoryBookings];
@@ -360,8 +452,8 @@ app.get("/api/bookings/:id", (req, res) => {
   res.json(booking);
 });
 
-// Cancel booking
-app.delete("/api/bookings/:id", (req, res) => {
+// Cancel booking - Protected (admin only)
+app.delete("/api/bookings/:id", authenticateAdmin, (req, res) => {
   const bookingIndex = inMemoryBookings.findIndex((b) => b.id === req.params.id);
   if (bookingIndex === -1) {
     return res.status(404).json({ error: "Booking not found" });
@@ -373,8 +465,8 @@ app.delete("/api/bookings/:id", (req, res) => {
   res.json({ success: true, message: "Booking cancelled" });
 });
 
-// Update booking status (for admin)
-app.put("/api/bookings/:id/status", (req, res) => {
+// Update booking status (for admin) - Protected
+app.put("/api/bookings/:id/status", authenticateAdmin, (req, res) => {
   const { status } = req.body;
   if (!["pending", "confirmed", "cancelled", "completed"].includes(status)) {
     return res.status(400).json({ error: "Invalid status" });
