@@ -5,6 +5,7 @@ import { Button } from "reactstrap";
 import axios from "axios";
 import moment from "moment-timezone";
 import timezones from "../timezones";
+import { API_HOST } from "../utils/api";
 moment.tz.setDefault("America/New_York");
 
 export default class CreateEvent extends Component {
@@ -94,7 +95,7 @@ export default class CreateEvent extends Component {
       reqTimezone: this.state.timezone,
     };
 
-    axios.post("http://localhost:5000/freeSlots", events).then((res) => {
+    axios.post(`${API_HOST}/freeSlots`, events).then((res) => {
       this.getSlots(res.data);
     });
   }
@@ -126,7 +127,7 @@ export default class CreateEvent extends Component {
     };
 
     axios
-      .post("http://localhost:5000/createEvent", eventParam)
+      .post(`${API_HOST}/createEvent`, eventParam)
       .then(() => {
         window.location = `/status/${eventParam.reqDateTime}/${eventParam.reqDuration}`;
       })

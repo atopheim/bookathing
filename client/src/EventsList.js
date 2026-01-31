@@ -4,6 +4,7 @@ import Calendar from "react-calendar";
 import axios from "axios";
 import { Table } from "reactstrap";
 import moment from "moment-timezone";
+import { API_HOST } from "./utils/api";
 moment.tz.setDefault("America/New_York");
 
 export default class CreateEvent extends Component {
@@ -72,7 +73,7 @@ export default class CreateEvent extends Component {
       reqEnd: moment.tz(this.state.endDate, "America/New_York").toDate(),
     };
 
-    axios.post("http://localhost:5000/getEvents/", range).then((res) => {
+    axios.post(`${API_HOST}/getEvents/`, range).then((res) => {
       this.getEventsList(res.data);
     });
   }
