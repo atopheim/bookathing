@@ -6,7 +6,6 @@ import {
   CheckCircleIcon,
   CalendarDaysIcon,
   ClockIcon,
-  MapPinIcon,
   UserIcon,
   DocumentDuplicateIcon,
 } from '@heroicons/react/24/outline';

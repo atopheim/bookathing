@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import toast, { Toaster } from 'react-hot-toast';
@@ -16,7 +16,6 @@ import { createBooking, getConfig } from '../utils/api';
 
 export default function EmbedPage() {
   const { resourceId } = useParams();
-  const navigate = useNavigate();
   const { resources, loading: resourcesLoading } = useResources();
   const { resource } = useResource(resourceId);
   const [config, setConfig] = useState(null);
@@ -36,7 +35,7 @@ export default function EmbedPage() {
   const [completedBooking, setCompletedBooking] = useState(null);
 
   const dateString = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null;
-  const { slots, slotInfo, loading: slotsLoading } = useSlots(
+  const { slots, loading: slotsLoading } = useSlots(
     selectedResource,
     dateString,
     timezone
