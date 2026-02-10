@@ -1,7 +1,10 @@
 import axios from 'axios';
 
-const API_HOST = (process.env.REACT_APP_API_URL || 'https://backend.minutemind.co')
-  .replace(/\/$/, '');
+const defaultHost =
+  typeof window !== 'undefined' && window.location
+    ? window.location.origin
+    : 'https://backend.minutemind.co';
+const API_HOST = (process.env.REACT_APP_API_URL || defaultHost).replace(/\/$/, '');
 const API_BASE = `${API_HOST}/api`;
 
 const api = axios.create({
