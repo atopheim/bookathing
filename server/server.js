@@ -43,7 +43,9 @@ const port = process.env.PORT || 5000;
 // Load and validate configuration
 loadConfig();
 validateConfig();
-watchConfig();
+if (!process.env.VERCEL) {
+  watchConfig();
+}
 
 // Security middleware
 app.use(helmet()); // Add security headers
@@ -547,7 +549,11 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
-app.listen(port, () => {
-  console.log(`BookAThing server running on port ${port}`);
-  console.log(`API available at http://localhost:${port}/api`);
-});
+if (!process.env.VERCEL && require.main === module) {
+  app.listen(port, () => {
+    console.log(`BookAThing server running on port ${port}`);
+    console.log(`API available at http://localhost:${port}/api`);
+  });
+}
+
+module.exports = app;

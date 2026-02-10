@@ -36,7 +36,6 @@ export default function TimeSlotPicker({
   }
 
   const availableSlots = slots.filter((slot) => slot.available);
-  const unavailableSlots = slots.filter((slot) => !slot.available);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6">
