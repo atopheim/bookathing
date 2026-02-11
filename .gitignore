@@ -108,3 +108,6 @@ serviceAccountKey.json
 
 # Static builds
 */build
+.vercel
+client/.vercel
+server/.vercel
