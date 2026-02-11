@@ -2,6 +2,9 @@
 
 A modern, feature-rich resource booking system similar to Calendly. Perfect for shared spaces, coworking areas, residential buildings, and businesses that need to manage bookable resources like washing machines, meeting rooms, parking spots, and more.
 
+Deployed to: https://bookathing.vercel.app/
+
+
 ![BookAThing](https://img.shields.io/badge/version-2.0.0-blue.svg)
 ![License](https://img.shields.io/badge/license-ISC-green.svg)
 
